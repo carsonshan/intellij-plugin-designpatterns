@@ -18,6 +18,11 @@
     </extensions>
 
     <actions>
-        <!-- Add your actions here -->
+        <group id="designpatterns" text="Design Patterns">
+            <add-to-group group-id="GenerateGroup" anchor="last"  />
+            <separator/>
+            <action id="designpatterns.builder" text="Builder"
+                    class="com.github.sbouclier.intellij.plugin.designpatterns.builder.action.BuilderAction"/>
+        </group>
     </actions>
 </idea-plugin>
