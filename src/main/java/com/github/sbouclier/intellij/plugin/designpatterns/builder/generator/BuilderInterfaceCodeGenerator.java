@@ -1,6 +1,7 @@
 package com.github.sbouclier.intellij.plugin.designpatterns.builder.generator;
 
 import com.github.sbouclier.intellij.plugin.designpatterns.builder.model.BuilderParameter;
+import com.github.sbouclier.intellij.plugin.designpatterns.util.StringUtils;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.psi.*;
 
@@ -232,8 +233,7 @@ public class BuilderInterfaceCodeGenerator extends AbstractBuilderCodeGenerator 
 
     private String generateInterfaceName(String name) {
         return new StringBuilder("I")
-                .append(name.substring(0, 1).toUpperCase())
-                .append(name.substring(1))
+                .append(StringUtils.firstUppercaseLetter(name))
                 .toString();
     }
 
