@@ -1,12 +1,11 @@
 package com.github.sbouclier.intellij.plugin.designpatterns.builder.ui;
 
+import com.github.sbouclier.intellij.plugin.designpatterns.listener.UpdateDocumentListener;
 import com.github.sbouclier.intellij.plugin.designpatterns.builder.model.BuilderParameter;
+import com.github.sbouclier.intellij.plugin.designpatterns.util.StringUtils;
 
 import javax.swing.*;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +43,19 @@ public class BuilderDialog extends JDialog {
         builderParamsTable.setModel(createParametersTableModel(parameters));
         builderParamsTable.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
         builderParamsTable.setRowSelectionAllowed(true);
+
+        cbUsePrefix.addItemListener(e -> {
+            if (cbUsePrefix.isSelected()) {
+                txtPrefix.setEnabled(true);
+                refreshParametersWithPrefix(txtPrefix.getText(), parameters);
+            } else {
+                txtPrefix.setEnabled(false);
+                parameters.forEach(p -> p.setSetterName(p.getParameterName()));
+                builderParamsTable.updateUI();
+            }
+        });
+
+        txtPrefix.getDocument().addDocumentListener((UpdateDocumentListener) e -> refreshParametersWithPrefix(txtPrefix.getText(), parameters));
     }
 
     private ParametersTableModel createParametersTableModel(List<BuilderParameter> parameters) {
@@ -59,22 +71,6 @@ public class BuilderDialog extends JDialog {
         for (int rowIndex : selectedRows) {
             result.add(paramsTableModel.getParameters().get(rowIndex));
         }
-
-
-        /*
-        final List<BuilderParameter> mandatoryParams = new ArrayList<>();
-        final List<BuilderParameter> optionalParams = new ArrayList<>();
-
-        for (int rowIndex : selectedRows) {
-            BuilderParameter param = paramsTableModel.getParameters().get(rowIndex);
-            if (param.isMandatory()) {
-                mandatoryParams.add(param);
-            } else {
-                optionalParams.add(param);
-            }
-        }
-        result = new BuilderDialogResult(mandatoryParams, optionalParams);
-        */
 
         dispose();
     }
@@ -95,6 +91,11 @@ public class BuilderDialog extends JDialog {
 
     public List<BuilderParameter> getResult() {
         return result;
+    }
+
+    private void refreshParametersWithPrefix(String prefix, List<BuilderParameter> params) {
+        params.forEach(p -> p.setSetterName(prefix + StringUtils.firstUppercaseLetter(p.getParameterName())));
+        builderParamsTable.updateUI();
     }
 
     public static void main(String[] args) {
