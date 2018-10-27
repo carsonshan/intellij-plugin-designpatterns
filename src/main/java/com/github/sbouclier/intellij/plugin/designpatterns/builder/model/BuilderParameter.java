@@ -1,5 +1,8 @@
 package com.github.sbouclier.intellij.plugin.designpatterns.builder.model;
 
+/**
+ * Builder parameter which represents a class field with options to build it
+ */
 public class BuilderParameter {
     private final String parameterType;
     private final String parameterName;
