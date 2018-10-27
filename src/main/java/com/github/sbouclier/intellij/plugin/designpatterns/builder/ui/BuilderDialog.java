@@ -39,6 +39,8 @@ public class BuilderDialog extends JDialog {
         // call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
+        buttonCancel.addActionListener(e -> onCancel());
+
         // build parameters table
         builderParamsTable.setModel(createParametersTableModel(parameters));
         builderParamsTable.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
@@ -84,11 +86,6 @@ public class BuilderDialog extends JDialog {
         buttonOK.addActionListener(e -> onOK());
     }
 
-    public void addCancelListener(ActionListener listener) {
-        buttonCancel.addActionListener(listener);
-        buttonCancel.addActionListener(e -> onCancel());
-    }
-
     public List<BuilderParameter> getResult() {
         return result;
     }
@@ -122,7 +119,6 @@ public class BuilderDialog extends JDialog {
         dialog.addOKListener(e -> {
             System.out.println("result = " + dialog.getResult());
         });
-        dialog.addCancelListener(l -> System.out.println("CANCEL"));
 
         dialog.pack();
         dialog.setVisible(true);
