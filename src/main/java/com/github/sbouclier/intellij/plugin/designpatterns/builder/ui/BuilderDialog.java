@@ -1,13 +1,15 @@
 package com.github.sbouclier.intellij.plugin.designpatterns.builder.ui;
 
-import com.github.sbouclier.intellij.plugin.designpatterns.listener.UpdateDocumentListener;
 import com.github.sbouclier.intellij.plugin.designpatterns.builder.model.BuilderParameter;
+import com.github.sbouclier.intellij.plugin.designpatterns.listener.UpdateDocumentListener;
 import com.github.sbouclier.intellij.plugin.designpatterns.util.StringUtils;
 
 import javax.swing.*;
-import java.awt.event.*;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
@@ -21,6 +23,8 @@ public class BuilderDialog extends JDialog {
     private JCheckBox cbUsePrefix;
     private JTextField txtPrefix;
     private JLabel lbSelectParameters;
+    private JRadioButton radioBtnClassic;
+    private JRadioButton radioBtnInterfaces;
     private List<BuilderParameter> result = new ArrayList<>();
 
     public BuilderDialog(List<BuilderParameter> parameters) {
@@ -93,35 +97,5 @@ public class BuilderDialog extends JDialog {
     private void refreshParametersWithPrefix(String prefix, List<BuilderParameter> params) {
         params.forEach(p -> p.setSetterName(prefix + StringUtils.firstUppercaseLetter(p.getParameterName())));
         builderParamsTable.updateUI();
-    }
-
-    public static void main(String[] args) {
-        BuilderDialog dialog = new BuilderDialog(Arrays.asList(
-                new BuilderParameter(
-                        "String",
-                        "name",
-                        "name",
-                        true,
-                        true),
-                new BuilderParameter(
-                        "int",
-                        "age",
-                        "age",
-                        true,
-                        false),
-                new BuilderParameter(
-                        "Long",
-                        "salary",
-                        "salary",
-                        false,
-                        false)
-        ));
-        dialog.addOKListener(e -> {
-            System.out.println("result = " + dialog.getResult());
-        });
-
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
     }
 }
