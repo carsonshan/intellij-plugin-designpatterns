@@ -1,33 +1,37 @@
 package com.github.sbouclier.intellij.plugin.designpatterns.builder.model;
 
+import com.intellij.psi.PsiField;
+
 /**
  * Builder parameter which represents a class field with options to build it
  */
 public class BuilderParameter {
-    private final String parameterType;
-    private final String parameterName;
+    private final PsiField field;
     private String setterName;
     private boolean mandatory;
     private boolean constructor;
 
-    public BuilderParameter(String parameterType,
-                            String parameterName,
-                            String setterName,
-                            boolean mandatory,
-                            boolean constructor) {
-        this.parameterType = parameterType;
-        this.parameterName = parameterName;
+    public BuilderParameter(PsiField field, String setterName, boolean mandatory, boolean constructor) {
+        this(field);
         this.setterName = setterName;
         this.mandatory = mandatory;
         this.constructor = constructor;
     }
 
-    public String getParameterType() {
-        return parameterType;
+    public BuilderParameter(PsiField field) {
+        this.field = field;
+    }
+
+    public PsiField getField() {
+        return field;
     }
 
     public String getParameterName() {
-        return parameterName;
+        return this.field.getName();
+    }
+
+    public String getParameterType() {
+        return this.field.getType().getPresentableText();
     }
 
     public String getSetterName() {
@@ -57,8 +61,7 @@ public class BuilderParameter {
     @Override
     public String toString() {
         return "BuilderParameter{" +
-                "parameterType='" + parameterType + '\'' +
-                ", parameterName='" + parameterName + '\'' +
+                "field=" + field +
                 ", setterName='" + setterName + '\'' +
                 ", mandatory=" + mandatory +
                 ", constructor=" + constructor +
