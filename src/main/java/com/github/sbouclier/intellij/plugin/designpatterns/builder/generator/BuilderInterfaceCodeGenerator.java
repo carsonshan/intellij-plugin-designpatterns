@@ -14,6 +14,9 @@ import java.util.Optional;
  */
 public class BuilderInterfaceCodeGenerator extends AbstractBuilderCodeGenerator {
 
+    private static final String BUILD_INTERFACE_NAME = "IBuild";
+    private static final String BUILDER_CLASS_NAME = "Builder";
+
     private List<BuilderParameter> mandatoryParameters = new ArrayList<>();
     private List<BuilderParameter> mandatoryParametersWithConstructor = new ArrayList<>();
     private List<BuilderParameter> mandatoryParametersWithoutConstructor = new ArrayList<>();
@@ -66,7 +69,7 @@ public class BuilderInterfaceCodeGenerator extends AbstractBuilderCodeGenerator 
         if(mandatoryParametersWithoutConstructor.size() > 0) {
             firstInterfaceName = generateInterfaceName(mandatoryParametersWithoutConstructor.get(0).getParameterName());
         } else {
-            firstInterfaceName = "IBuild";
+            firstInterfaceName = BUILD_INTERFACE_NAME;
         }
 
         List<String> listParamNameWithType = new ArrayList<>();
@@ -81,7 +84,7 @@ public class BuilderInterfaceCodeGenerator extends AbstractBuilderCodeGenerator 
                 .append(" builder(")
                 .append(String.join(",", listParamNameWithType))
                 .append(") {")
-                .append("return new Builder(")
+                .append("return new ").append(BUILDER_CLASS_NAME).append("(")
                 .append(String.join(",", listParamNameWithoutType))
                 .append(");").append("}");
         return elementFactory.createMethodFromText(sbMethod.toString(), null);
@@ -90,7 +93,7 @@ public class BuilderInterfaceCodeGenerator extends AbstractBuilderCodeGenerator 
     private PsiClass createMandatoryInterfaceInnerClass(BuilderParameter parameter) {
         final String paramName = parameter.getParameterName();
         final String name = generateInterfaceName(paramName);
-        final String nextInterface = nextInterfaceName(parameter).orElse("IBuild");
+        final String nextInterface = nextInterfaceName(parameter).orElse(BUILD_INTERFACE_NAME);
 
         PsiClass parameterInterface = elementFactory.createInterface(name);
 
@@ -105,10 +108,10 @@ public class BuilderInterfaceCodeGenerator extends AbstractBuilderCodeGenerator 
     }
 
     private PsiClass createOptionalsInterfaceBuildInnerClass() {
-        PsiClass buildInterface = elementFactory.createInterface("IBuild");
+        PsiClass buildInterface = elementFactory.createInterface(BUILD_INTERFACE_NAME);
 
         optionalParameters.forEach(param -> {
-            StringBuilder sbMethod = new StringBuilder("IBuild")
+            StringBuilder sbMethod = new StringBuilder(BUILD_INTERFACE_NAME)
                     .append(" ").append(param.getSetterName()).append("(")
                     .append(param.getParameterType())
                     .append(" ").append(param.getParameterName()).append(");");
@@ -126,10 +129,10 @@ public class BuilderInterfaceCodeGenerator extends AbstractBuilderCodeGenerator 
     }
 
     private PsiClass createInnerBuilderClass() {
-        PsiClass innerBuilderClass = targetClass.findInnerClassByName("Builder", true);
+        PsiClass innerBuilderClass = targetClass.findInnerClassByName(BUILDER_CLASS_NAME, true);
         if (innerBuilderClass == null) {
             // class
-            final PsiClass finalInnerBuilderClass = elementFactory.createClass("Builder");
+            final PsiClass finalInnerBuilderClass = elementFactory.createClass(BUILDER_CLASS_NAME);
             finalInnerBuilderClass.getModifierList().setModifierProperty(PsiModifier.STATIC, true);
             finalInnerBuilderClass.getModifierList().setModifierProperty(PsiModifier.FINAL, true);
 
@@ -139,7 +142,7 @@ public class BuilderInterfaceCodeGenerator extends AbstractBuilderCodeGenerator 
                             .getImplementsList()
                             .add(elementFactory.createReferenceFromText(
                                     generateInterfaceName(param.getParameterName()), null)));
-            finalInnerBuilderClass.getImplementsList().add(elementFactory.createReferenceFromText("IBuild", null));
+            finalInnerBuilderClass.getImplementsList().add(elementFactory.createReferenceFromText(BUILD_INTERFACE_NAME, null));
 
             // instance
             PsiClassType targetClassType = elementFactory.createType(targetClass);
@@ -181,7 +184,8 @@ public class BuilderInterfaceCodeGenerator extends AbstractBuilderCodeGenerator 
             constructorStatements.add(sbStatement.toString());
         });
 
-        final StringBuilder sbMethod = new StringBuilder("private Builder(")
+        final StringBuilder sbMethod = new StringBuilder("private ")
+                .append(BUILDER_CLASS_NAME).append("(")
                 .append(String.join(",", listParamNameWithType))
                 .append(") {\n");
         constructorStatements.forEach(sbMethod::append);
@@ -189,11 +193,10 @@ public class BuilderInterfaceCodeGenerator extends AbstractBuilderCodeGenerator 
         return elementFactory.createMethodFromText(sbMethod.toString(), null);
     }
 
-
     private PsiMethod createMandatoryMethodInnerBuilderClass(BuilderParameter parameter) {
         final String paramName = parameter.getParameterName();
         final String name = generateInterfaceName(paramName);
-        final String nextInterface = nextInterfaceName(parameter).orElse("IBuild");
+        final String nextInterface = nextInterfaceName(parameter).orElse(BUILD_INTERFACE_NAME);
 
         StringBuilder sbMethod = new StringBuilder("@Override\n")
                 .append("public ").append(nextInterface)
@@ -211,7 +214,7 @@ public class BuilderInterfaceCodeGenerator extends AbstractBuilderCodeGenerator 
         final String paramName = parameter.getParameterName();
 
         StringBuilder sbMethod = new StringBuilder("@Override\n")
-                .append("public IBuild")
+                .append("public ").append(BUILD_INTERFACE_NAME)
                 .append(" ").append(parameter.getSetterName()).append("(")
                 .append(parameter.getParameterType())
                 .append(" ").append(paramName).append(") {")
