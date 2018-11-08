@@ -5,11 +5,7 @@ import com.github.sbouclier.intellij.plugin.designpatterns.listener.UpdateDocume
 import com.github.sbouclier.intellij.plugin.designpatterns.util.StringUtils;
 
 import javax.swing.*;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
+import java.awt.event.*;
 import java.util.List;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
@@ -25,7 +21,7 @@ public class BuilderDialog extends JDialog {
     private JLabel lbSelectParameters;
     private JRadioButton radioBtnClassic;
     private JRadioButton radioBtnInterfaces;
-    private List<BuilderParameter> result = new ArrayList<>();
+    private BuilderDialogResult result;
 
     public BuilderDialog(List<BuilderParameter> parameters) {
         setContentPane(contentPane);
@@ -44,6 +40,9 @@ public class BuilderDialog extends JDialog {
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         buttonCancel.addActionListener(e -> onCancel());
+
+        radioBtnClassic.addItemListener(e -> builderParamsTable.setModel(createParametersTableModel(parameters)));
+        radioBtnInterfaces.addItemListener(e -> builderParamsTable.setModel(createParametersTableModel(parameters)));
 
         // build parameters table
         builderParamsTable.setModel(createParametersTableModel(parameters));
@@ -64,18 +63,30 @@ public class BuilderDialog extends JDialog {
         txtPrefix.getDocument().addDocumentListener((UpdateDocumentListener) e -> refreshParametersWithPrefix(txtPrefix.getText(), parameters));
     }
 
-    private ParametersTableModel createParametersTableModel(List<BuilderParameter> parameters) {
-        ParametersTableModel paramsTableModel = new ParametersTableModel();
-        paramsTableModel.setParameters(parameters);
-        return paramsTableModel;
+    private AbstractBuilderTableModel createParametersTableModel(List<BuilderParameter> parameters) {
+        final AbstractBuilderTableModel tableModel;
+        if(radioBtnClassic.isSelected()) {
+            tableModel = new ParametersClassicBuilderTableModel();
+        } else {
+            tableModel = new ParametersInterfaceBuilderTableModel();
+        }
+
+        tableModel.setParameters(parameters);
+        return tableModel;
     }
 
     private void onOK() {
-        ParametersTableModel paramsTableModel = (ParametersTableModel) builderParamsTable.getModel();
+        AbstractBuilderTableModel paramsTableModel = (AbstractBuilderTableModel) builderParamsTable.getModel();
         int[] selectedRows = builderParamsTable.getSelectedRows();
 
+        if(radioBtnClassic.isSelected()) {
+            this.result = new BuilderDialogResult(BuilderDialogResult.BuilderType.CLASSIC);
+        } else {
+            this.result = new BuilderDialogResult(BuilderDialogResult.BuilderType.INTERFACES);
+        }
+
         for (int rowIndex : selectedRows) {
-            result.add(paramsTableModel.getParameters().get(rowIndex));
+            result.addSelectedParameter(paramsTableModel.getParameters().get(rowIndex));
         }
 
         dispose();
@@ -90,7 +101,7 @@ public class BuilderDialog extends JDialog {
         buttonOK.addActionListener(e -> onOK());
     }
 
-    public List<BuilderParameter> getResult() {
+    public BuilderDialogResult getResult() {
         return result;
     }
 
