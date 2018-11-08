@@ -1,13 +1,18 @@
 package com.github.sbouclier.intellij.plugin.designpatterns.builder.action;
 
+import com.github.sbouclier.intellij.plugin.designpatterns.builder.generator.BuilderClassicCodeGenerator;
 import com.github.sbouclier.intellij.plugin.designpatterns.builder.generator.BuilderInterfaceCodeGenerator;
 import com.github.sbouclier.intellij.plugin.designpatterns.builder.model.BuilderParameter;
 import com.github.sbouclier.intellij.plugin.designpatterns.builder.ui.BuilderDialog;
+import com.github.sbouclier.intellij.plugin.designpatterns.builder.ui.BuilderDialogResult;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +36,13 @@ public class BuilderAction extends AnAction {
         BuilderDialog dialog = new BuilderDialog(createParamsFromClass(targetClass));
 
         dialog.addOKListener(l -> {
-            new BuilderInterfaceCodeGenerator(targetClass, dialog.getResult()).generate();
+            BuilderDialogResult result = dialog.getResult();
+            List<BuilderParameter> params = dialog.getResult().getSelectedParameters();
+            if(result.getBuilderType() == BuilderDialogResult.BuilderType.CLASSIC) {
+                new BuilderClassicCodeGenerator(targetClass, params).generate();
+            } else {
+                new BuilderInterfaceCodeGenerator(targetClass, params).generate();
+            }
         });
 
         dialog.pack();
@@ -44,8 +55,7 @@ public class BuilderAction extends AnAction {
         PsiField[] fields = psiClass.getFields();
         for(PsiField field : fields) {
             parameters.add(new BuilderParameter(
-                    field.getType().getCanonicalText(),
-                    field.getName(),
+                    field,
                     field.getName(),
                     true,
                     false
