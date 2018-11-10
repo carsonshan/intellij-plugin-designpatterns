@@ -5,6 +5,7 @@ import com.github.sbouclier.intellij.plugin.designpatterns.builder.generator.Bui
 import com.github.sbouclier.intellij.plugin.designpatterns.builder.model.BuilderParameter;
 import com.github.sbouclier.intellij.plugin.designpatterns.builder.ui.BuilderDialog;
 import com.github.sbouclier.intellij.plugin.designpatterns.builder.ui.BuilderDialogResult;
+import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -33,21 +34,25 @@ public class BuilderAction extends AnAction {
         PsiElement elementAt = psiFile.findElementAt(offset);
 
         PsiClass targetClass = getParentOfType(elementAt, PsiClass.class);
-        BuilderDialog dialog = new BuilderDialog(createParamsFromClass(targetClass));
+        if(targetClass != null) {
+            BuilderDialog dialog = new BuilderDialog(createParamsFromClass(targetClass));
 
-        dialog.addOKListener(l -> {
-            BuilderDialogResult result = dialog.getResult();
-            List<BuilderParameter> params = dialog.getResult().getSelectedParameters();
-            if(result.getBuilderType() == BuilderDialogResult.BuilderType.CLASSIC) {
-                new BuilderClassicCodeGenerator(targetClass, params).generate();
-            } else {
-                new BuilderInterfaceCodeGenerator(targetClass, params).generate();
-            }
-        });
+            dialog.addOKListener(l -> {
+                BuilderDialogResult result = dialog.getResult();
+                List<BuilderParameter> params = dialog.getResult().getSelectedParameters();
+                if(result.getBuilderType() == BuilderDialogResult.BuilderType.CLASSIC) {
+                    new BuilderClassicCodeGenerator(targetClass, params).generate();
+                } else {
+                    new BuilderInterfaceCodeGenerator(targetClass, params).generate();
+                }
+            });
 
-        dialog.pack();
-        dialog.setLocationRelativeTo(null);
-        dialog.setVisible(true);
+            dialog.pack();
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+        } else {
+            HintManager.getInstance().showErrorHint(editor, "Builder must be generated inside class");
+        }
     }
 
     private List<BuilderParameter> createParamsFromClass(PsiClass psiClass) {
