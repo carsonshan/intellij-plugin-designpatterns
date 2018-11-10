@@ -3,12 +3,12 @@ plugins {
 }
 
 group 'com.github.sbouclier.intellij.plugin'
-version '1.0.0'
+version '0.1.0'
 
 intellij {
     version '2018.2.4'
 }
 patchPluginXml {
     changeNotes """
-      1.0.0: Initiale release.<br>"""
+      0.1.0: Initiale release."""
 }
