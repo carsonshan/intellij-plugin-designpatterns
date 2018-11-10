@@ -12,6 +12,7 @@
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
+    <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
@@ -23,6 +24,7 @@
             <separator/>
             <action id="designpatterns.builder" text="Builder"
                     class="com.github.sbouclier.intellij.plugin.designpatterns.builder.action.BuilderAction"/>
+            <separator/>
         </group>
     </actions>
 </idea-plugin>
