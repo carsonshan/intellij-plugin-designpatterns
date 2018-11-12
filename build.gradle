@@ -10,5 +10,5 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-      0.1.0: Initiale release."""
+      0.1.0: Initial release."""
 }

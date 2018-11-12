@@ -1,10 +1,17 @@
 <idea-plugin>
     <id>com.github.sbouclier.intellij.plugin.designpatterns</id>
-    <name>Java Design Patterns plugin</name>
+    <name>Java Design Patterns</name>
     <vendor url="https://github.com/sbouclier/intellij-plugin-designpatterns">Stéphane Bouclier</vendor>
 
     <description><![CDATA[
-    Java Design Patterns plugin for Intellij IDEA.<br>
+    This plugin provide ability to generate easily Java design patterns.<br/>
+    It supports at this time only Builder pattern by two ways:<br/>
+    <ul>
+        <li>Classic builder pattern</li>
+		<li>Builder with interfaces</li>
+	</ul>
+    <br/>
+    Do you like it? You can give it a star at <a href="https://github.com/sbouclier/intellij-plugin-designpatterns">GitHub</a>.
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -27,4 +34,12 @@
             <separator/>
         </group>
     </actions>
+
+    <change-notes><![CDATA[
+		<h3>0.1.0: Initial release of the plugin:</h3>
+		<ul>
+			<li>Generate classic builder pattern</li>
+			<li>Generate builder with interfaces</li>
+		</ul>
+	]]></change-notes>
 </idea-plugin>
