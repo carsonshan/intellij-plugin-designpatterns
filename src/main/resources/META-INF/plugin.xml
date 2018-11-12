@@ -36,6 +36,7 @@
     </actions>
 
     <change-notes><![CDATA[
+        <h3>0.2.0: Update plugin description</h3>
 		<h3>0.1.0: Initial release of the plugin:</h3>
 		<ul>
 			<li>Generate classic builder pattern</li>
