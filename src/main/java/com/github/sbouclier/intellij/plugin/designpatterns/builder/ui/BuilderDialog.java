@@ -1,8 +1,10 @@
 package com.github.sbouclier.intellij.plugin.designpatterns.builder.ui;
 
 import com.github.sbouclier.intellij.plugin.designpatterns.builder.model.BuilderParameter;
+import com.github.sbouclier.intellij.plugin.designpatterns.builder.service.BuilderPrefs;
 import com.github.sbouclier.intellij.plugin.designpatterns.listener.UpdateDocumentListener;
 import com.github.sbouclier.intellij.plugin.designpatterns.util.StringUtils;
+import com.intellij.openapi.components.ServiceManager;
 
 import javax.swing.*;
 import java.awt.event.*;
@@ -11,6 +13,8 @@ import java.util.List;
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
 public class BuilderDialog extends JDialog {
+    private BuilderPrefs builderPrefs = ServiceManager.getService(BuilderPrefs.class);
+
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
@@ -49,18 +53,18 @@ public class BuilderDialog extends JDialog {
         builderParamsTable.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
         builderParamsTable.setRowSelectionAllowed(true);
 
-        cbUsePrefix.addItemListener(e -> {
-            if (cbUsePrefix.isSelected()) {
-                txtPrefix.setEnabled(true);
-                refreshParametersWithPrefix(txtPrefix.getText(), parameters);
-            } else {
-                txtPrefix.setEnabled(false);
-                parameters.forEach(p -> p.setSetterName(p.getParameterName()));
-                builderParamsTable.updateUI();
-            }
-        });
-
+        cbUsePrefix.addItemListener(e -> handleUpdateUsePrefix(parameters));
         txtPrefix.getDocument().addDocumentListener((UpdateDocumentListener) e -> refreshParametersWithPrefix(txtPrefix.getText(), parameters));
+
+        // config
+        if(builderPrefs.getBuilderType() == BuilderPrefs.BuilderType.CLASSIC) {
+            radioBtnClassic.setSelected(true);
+        } else {
+            radioBtnInterfaces.setSelected(true);
+        }
+        cbUsePrefix.setSelected(builderPrefs.isUsePrefix());
+        txtPrefix.setText(builderPrefs.getPrefix());
+        handleUpdateUsePrefix(parameters);
     }
 
     private AbstractBuilderTableModel createParametersTableModel(List<BuilderParameter> parameters) {
@@ -81,13 +85,18 @@ public class BuilderDialog extends JDialog {
 
         if(radioBtnClassic.isSelected()) {
             this.result = new BuilderDialogResult(BuilderDialogResult.BuilderType.CLASSIC);
+            builderPrefs.setBuilderType(BuilderPrefs.BuilderType.CLASSIC);
         } else {
             this.result = new BuilderDialogResult(BuilderDialogResult.BuilderType.INTERFACES);
+            builderPrefs.setBuilderType(BuilderPrefs.BuilderType.INTERFACES);
         }
 
         for (int rowIndex : selectedRows) {
             result.addSelectedParameter(paramsTableModel.getParameters().get(rowIndex));
         }
+
+        builderPrefs.setPrefix(txtPrefix.getText());
+        builderPrefs.setUsePrefix(cbUsePrefix.isSelected());
 
         dispose();
     }
@@ -108,5 +117,20 @@ public class BuilderDialog extends JDialog {
     private void refreshParametersWithPrefix(String prefix, List<BuilderParameter> params) {
         params.forEach(p -> p.setSetterName(prefix + StringUtils.firstUppercaseLetter(p.getParameterName())));
         builderParamsTable.updateUI();
+    }
+
+    private void refreshParametersWithoutPrefix(List<BuilderParameter> params) {
+        params.forEach(p -> p.setSetterName(p.getParameterName()));
+        builderParamsTable.updateUI();
+    }
+
+    private void handleUpdateUsePrefix(List<BuilderParameter> parameters) {
+        if (cbUsePrefix.isSelected()) {
+            txtPrefix.setEnabled(true);
+            refreshParametersWithPrefix(txtPrefix.getText(), parameters);
+        } else {
+            txtPrefix.setEnabled(false);
+            refreshParametersWithoutPrefix(parameters);
+        }
     }
 }

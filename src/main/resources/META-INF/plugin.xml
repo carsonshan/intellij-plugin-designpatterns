@@ -22,7 +22,8 @@
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
+        <applicationService
+                serviceImplementation="com.github.sbouclier.intellij.plugin.designpatterns.builder.service.BuilderPrefs"/>
     </extensions>
 
     <actions>
